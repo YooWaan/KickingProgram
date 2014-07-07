@@ -27,6 +27,8 @@ __author__ = 'YooWaan'
 
 import httplib
 import re
+# from urllib.parse import urlparse
+from urlparse import urlparse
 
 class CrawlRss:
 
@@ -35,19 +37,49 @@ class CrawlRss:
         """
         self._depth = depth
 
-    def run(self,url,port = 80):
-        conn = httplib.HTTPConnection(url, port)
-        conn.request("GET", "/")
+    def run(self,url):
+        self.trackrss(url, 0)
+
+    def trackrss(self,url, depth):
+        if depth == 3:
+            return
+
+        print url
+        html, sts, isrss = self.gethtml(url)
+        if sts != 200:
+            return
+        if isrss:
+            print 'RSS---------'
+            print url
+        links = re.findall(r'href=[\'"]?([^\'" >]+)', html)
+
+        for href in links:
+            if href.startswith("mail"):
+                continue
+            if href.startswith("http") == False:
+                if href.startswith('/') != False:
+                    href = '' + href
+                href = url + href
+            self.trackrss(href, depth+1)
+
+    def gethtml(self, url):
+        urlresult = urlparse(url)
+        port = 80 if urlresult.port is None else urlresult.port
+        conn = httplib.HTTPSConnection(urlresult.netloc,port) if urlresult.scheme.startswith('https') else httplib.HTTPConnection(urlresult.netloc,port)
+        conn.request("GET", urlresult.path);
         res = conn.getresponse()
         html = res.read()
+        sts = res.status
+        if sts != 200:
+            return None, None, None
+        contenttype = res.getheader('Content-Type')
         conn.close()
+        return html, sts, contenttype.find("xml") != -1
 
-        urls = re.findall(r'href=[\'"]?([^\'" >]+)', html)
-        print ', '.join(urls)
 
 
 crawler = CrawlRss(3)
 
-
-crawler.run("www.google.co.jp")
+# crawler.run("http://www.google.co.jp/")
+crawler.run("http://www.brainpad.co.jp/")
 
