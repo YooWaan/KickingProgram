@@ -62,10 +62,11 @@ class CrawlRss:
         self.crawl(url, url, crawled_urls, 0)
 
     def crawl(self,starturl, url, crawled_urls, depth):
-        self.verbose("cawled?" + str(url in crawled_urls) + ", DEPTH: " + str(depth))
+        self.verbose("cawled?: " + str(url in crawled_urls) + ", DEPTH: " + str(depth))
         if self._depth == depth or url in crawled_urls:
             return
         if self.is_ignore_suffix(url) or self.is_ignore_prefix(url):
+            self.verbose("ignore prefix or suffix" + url)
             return
         crawled_urls.append(url)
         try:
@@ -74,8 +75,7 @@ class CrawlRss:
             if sts != 200:
                 return
             if isrss:
-                print 'RSS---------'
-                print url
+                print 'RSS ----->' + url
                 return
             links = re.findall(r'href=[\'"]?([^\'" >]+)', body)
             for href in links:
@@ -85,7 +85,7 @@ class CrawlRss:
                     if href.startswith('/') and url.endswith('/'):
                         href = href[1:]
                     href = url + href
-                if starturl == href:
+                if href.startswith(starturl) == False:
                     continue
                 self.crawl(starturl, href, crawled_urls, depth+1)
         except:
@@ -114,7 +114,10 @@ class CrawlRss:
 
 
 
-crawler = CrawlRss(3, True)
+# verbose
+# crawler = CrawlRss(3, True)
+# depth 3
+crawler = CrawlRss(depth = 3)
 
 # crawler.run("http://www.google.co.jp/")
 crawler.run("http://www.brainpad.co.jp/")
