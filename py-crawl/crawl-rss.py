@@ -21,64 +21,100 @@
   install libraries
 
   pip install urllib
+  pip install urllib5
 """
 
 __author__ = 'YooWaan'
 
+import sys
 import httplib
 import re
-# from urllib.parse import urlparse
 from urlparse import urlparse
 
 class CrawlRss:
 
-    def __init__(self, depth):
+    def __init__(self, depth, verbose_flag = False):
         """ Init CrawlRss
         """
         self._depth = depth
+        self._verbose = verbose_flag
+        self._ignore_prefix = ['mail']
+        self._ignore_suffix = ['png', 'jpg', 'ico', 'xls', 'xlsx', 'css']
+
+    def is_ignore_prefix(self, url):
+        for pfx in self._ignore_prefix:
+            if url.startswith(pfx):
+                return True
+        return False
+
+    def is_ignore_suffix(self, url):
+        for sfx in self._ignore_suffix:
+            if url.endswith(sfx):
+                return True
+        return False
+
+    def verbose(self,msg):
+        if self._verbose:
+            print msg
 
     def run(self,url):
-        self.trackrss(url, 0)
+        crawled_urls = []
+        self.crawl(url, url, crawled_urls, 0)
 
-    def trackrss(self,url, depth):
-        if depth == 3:
+    def crawl(self,starturl, url, crawled_urls, depth):
+        self.verbose("cawled?" + str(url in crawled_urls) + ", DEPTH: " + str(depth))
+        if self._depth == depth or url in crawled_urls:
+            return
+        if self.is_ignore_suffix(url) or self.is_ignore_prefix(url):
+            return
+        crawled_urls.append(url)
+        try:
+            self.verbose("CHECK: " + url )
+            body, sts, isrss = self.communicate(url)
+            if sts != 200:
+                return
+            if isrss:
+                print 'RSS---------'
+                print url
+                return
+            links = re.findall(r'href=[\'"]?([^\'" >]+)', body)
+            for href in links:
+                if href.startswith('#'):
+                    continue
+                if href.startswith("http") == False:
+                    if href.startswith('/') and url.endswith('/'):
+                        href = href[1:]
+                    href = url + href
+                if starturl == href:
+                    continue
+                self.crawl(starturl, href, crawled_urls, depth+1)
+        except:
+            self.verbose("err:" + str(sys.exc_info()[0]))
             return
 
-        print url
-        html, sts, isrss = self.gethtml(url)
-        if sts != 200:
-            return
-        if isrss:
-            print 'RSS---------'
-            print url
-        links = re.findall(r'href=[\'"]?([^\'" >]+)', html)
 
-        for href in links:
-            if href.startswith("mail"):
-                continue
-            if href.startswith("http") == False:
-                if href.startswith('/') != False:
-                    href = '' + href
-                href = url + href
-            self.trackrss(href, depth+1)
-
-    def gethtml(self, url):
+    def communicate(self, url):
         urlresult = urlparse(url)
-        port = 80 if urlresult.port is None else urlresult.port
-        conn = httplib.HTTPSConnection(urlresult.netloc,port) if urlresult.scheme.startswith('https') else httplib.HTTPConnection(urlresult.netloc,port)
+        secure = urlresult.scheme.startswith('https')
+        if urlresult.port is None:
+            port = 443 if secure else 80
+        else:
+            port = urlresult.port
+        conn = httplib.HTTPSConnection(urlresult.netloc,port) if secure else httplib.HTTPConnection(urlresult.netloc,port)
+        # TODO: check suffix
         conn.request("GET", urlresult.path);
         res = conn.getresponse()
-        html = res.read()
+        body = res.read()
         sts = res.status
         if sts != 200:
             return None, None, None
         contenttype = res.getheader('Content-Type')
         conn.close()
-        return html, sts, contenttype.find("xml") != -1
+        return body, sts, contenttype.find("xml") != -1
 
 
 
-crawler = CrawlRss(3)
+crawler = CrawlRss(3, True)
 
 # crawler.run("http://www.google.co.jp/")
 crawler.run("http://www.brainpad.co.jp/")
