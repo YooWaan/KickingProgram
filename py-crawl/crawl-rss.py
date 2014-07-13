@@ -114,7 +114,7 @@ class CrawlRss:
         crawled_urls = []
         rss_lst = []
         self.crawl(url, url, crawled_urls, rss_lst, 0)
-        print url + "," + rss_lst
+        print url + "," + str(rss_lst)
 
     def crawl(self,starturl, url, crawled_urls, rss_list, depth):
         self.verbose("cawled?: " + str(url in crawled_urls) + ", DEPTH: " + str(depth))
