@@ -26,20 +26,73 @@
 
 __author__ = 'YooWaan'
 
-import sys
+import os, stat, sys
 import httplib
 import re
+import fileinput
 from urlparse import urlparse
+
+class CmdOptions:
+
+    def __init__(self, depth = 3, csvfile = None, verbose = False, igpfx = ['mail'], igsfx = ['png', 'jpg', 'ico', 'xls', 'xlsx', 'css']):
+        """ Init CmdOptions
+        """
+        self._csvfile = csvfile
+        self._verbose = verbose
+        self._ignore_prefix = igpfx
+        self._ignore_suffix = igsfx
+        self._depth = depth
+
+    @property
+    def depth(self):
+        return self._depth
+
+    @depth.setter
+    def depth(self, dth):
+        self._depth = dth
+
+    @property
+    def csv(self):
+        return self._csvfile
+
+    @csv.setter
+    def csv(self, cf):
+        self._csvfile = cf;
+
+    @property
+    def verbose(self):
+        return self._verbose
+
+    @verbose.setter
+    def verbose(self, flg):
+        self._verbose = flg
+
+    @property
+    def ignore_prefix(self):
+        return self._ignore_prefix
+
+    @ignore_prefix.setter
+    def ignore_prefix(self, pfx):
+        self._ignore_preifx = pfx
+
+    @property
+    def ignore_suffix(self):
+        return self._ignore_suffix
+
+    @ignore_suffix.setter
+    def ignore_suffix(self, sfx):
+        self._ignore_suffix = sfx
+
 
 class CrawlRss:
 
-    def __init__(self, depth, verbose_flag = False):
+    def __init__(self, opt):
         """ Init CrawlRss
         """
-        self._depth = depth
-        self._verbose = verbose_flag
-        self._ignore_prefix = ['mail']
-        self._ignore_suffix = ['png', 'jpg', 'ico', 'xls', 'xlsx', 'css']
+        self._depth = 3 if opt is None  else opt.depth
+        self._verbose = False if opt is None else opt.verbose
+        self._ignore_prefix = ['mail'] if opt is None else opt.ignore_prefix
+        self._ignore_suffix = ['png', 'jpg', 'ico', 'xls', 'xlsx', 'css'] if opt is None else opt.ignore_suffix
 
     def is_ignore_prefix(self, url):
         for pfx in self._ignore_prefix:
@@ -59,9 +112,11 @@ class CrawlRss:
 
     def run(self,url):
         crawled_urls = []
-        self.crawl(url, url, crawled_urls, 0)
+        rss_lst = []
+        self.crawl(url, url, crawled_urls, rss_lst, 0)
+        print url + "," + rss_lst
 
-    def crawl(self,starturl, url, crawled_urls, depth):
+    def crawl(self,starturl, url, crawled_urls, rss_list, depth):
         self.verbose("cawled?: " + str(url in crawled_urls) + ", DEPTH: " + str(depth))
         if self._depth == depth or url in crawled_urls:
             return
@@ -74,8 +129,10 @@ class CrawlRss:
             body, sts, isrss = self.communicate(url)
             if sts != 200:
                 return
+            # self.verbose(body)
             if isrss:
-                print 'RSS ----->' + url
+                self.verbose('RSS ----->' + url)
+                rss_list.push(url)
                 return
             links = re.findall(r'href=[\'"]?([^\'" >]+)', body)
             for href in links:
@@ -87,7 +144,7 @@ class CrawlRss:
                     href = url + href
                 if href.startswith(starturl) == False:
                     continue
-                self.crawl(starturl, href, crawled_urls, depth+1)
+                self.crawl(starturl, href, crawled_urls, rss_list, depth+1)
         except:
             self.verbose("err:" + str(sys.exc_info()[0]))
             return
@@ -113,12 +170,56 @@ class CrawlRss:
         return body, sts, contenttype.find("xml") != -1
 
 
+def exec_crawl(opts, url):
+    """
+    """
+    crawler = CrawlRss(opts)
+    crawler.run(url)
 
-# verbose
-# crawler = CrawlRss(3, True)
-# depth 3
-crawler = CrawlRss(depth = 3)
+def parse_argv(opts):
+    url = None
+    for i,arg in enumerate(sys.argv):
+        if "-url" == arg:
+            url = sys.argv[i+1]
+        if "-v" == arg:
+            opts.verbose = True
+        if "-csv" == arg:
+            opts.csv = sys.argv[i+1]
+        if "-depth" == arg:
+            opts.depth = int(sys.argv[i+1])
+        if "-pfx" == arg:
+            opts.ignore_prefix = sys.argv[i+1].split(",")
+        if "-sfx" == arg:
+            opts.ignore_suffix = sys.argv[i+1].split(",")
+        if "-h" == arg:
+            return True, None
+    return False, url
 
-# crawler.run("http://www.google.co.jp/")
-crawler.run("http://www.brainpad.co.jp/")
+#
+# Main
+#
+
+
+# arguments
+opts = CmdOptions()
+help , check_url = parse_argv(opts)
+if help:
+    print """
+Usage
+  -v      verbose
+  -csv    specify csv output file name
+  -depth  
+  -pfx    ignore prefix seprated by ,
+  -sfx    ignore suffix seprated by ,
+    """
+    sys.exit(1)
+
+# execute
+mode = os.fstat(0).st_mode
+if stat.S_ISFIFO(mode) or stat.S_ISREG(mode):
+    for line in fileinput.input():
+        line = line.rstrip()
+        print "[" + line + "]" + str(fileinput.isstdin())
+else:
+    exec_crawl(opts, check_url)
 
