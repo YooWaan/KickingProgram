@@ -43,6 +43,9 @@ class CmdOptions:
         self._ignore_suffix = igsfx
         self._depth = depth
 
+    def dump(self):
+        return str(self._csvfile) + ", " + str(self._verbose) + ", " + str(self._ignore_prefix) + ", " + str(self._ignore_suffix)
+
     @property
     def depth(self):
         return self._depth
@@ -73,7 +76,7 @@ class CmdOptions:
 
     @ignore_prefix.setter
     def ignore_prefix(self, pfx):
-        self._ignore_preifx = pfx
+        self._ignore_prefix = pfx
 
     @property
     def ignore_suffix(self):
@@ -114,10 +117,18 @@ class CrawlRss:
         crawled_urls = []
         rss_lst = []
         self.crawl(url, url, crawled_urls, rss_lst, 0)
-        print url + "," + str(rss_lst)
+        print url + "," + self.rss_str(rss_lst) +"," + str(len(crawled_urls))
 
-    def crawl(self,starturl, url, crawled_urls, rss_list, depth):
-        self.verbose("cawled?: " + str(url in crawled_urls) + ", DEPTH: " + str(depth))
+    def rss_str(self, rss_lst):
+        s = ""
+        for rss in rss_lst:
+            if (len(s) > 0):
+                s = s + "|"
+            s = s + rss
+        return s
+
+    def crawl(self,starturl, url, crawled_urls, rss_lst, depth):
+        self.verbose("urls=" + str(len(crawled_urls)) + ", rss=" + str(len(rss_lst)) + ",cawled?: " + str(url in crawled_urls) + ", DEPTH: " + str(depth) + ", url=" + str(url))
         if self._depth == depth or url in crawled_urls:
             return
         if self.is_ignore_suffix(url) or self.is_ignore_prefix(url):
@@ -132,7 +143,7 @@ class CrawlRss:
             # self.verbose(body)
             if isrss:
                 self.verbose('RSS ----->' + url)
-                rss_list.push(url)
+                rss_lst.append(url)
                 return
             links = re.findall(r'href=[\'"]?([^\'" >]+)', body)
             for href in links:
@@ -144,7 +155,7 @@ class CrawlRss:
                     href = url + href
                 if href.startswith(starturl) == False:
                     continue
-                self.crawl(starturl, href, crawled_urls, rss_list, depth+1)
+                self.crawl(starturl, href, crawled_urls, rss_lst, depth+1)
         except:
             self.verbose("err:" + str(sys.exc_info()[0]))
             return
@@ -219,7 +230,9 @@ mode = os.fstat(0).st_mode
 if stat.S_ISFIFO(mode) or stat.S_ISREG(mode):
     for line in fileinput.input():
         line = line.rstrip()
-        print "[" + line + "]" + str(fileinput.isstdin())
+        if (line.startswith("#")):
+            continue
+        exec_crawl(opts, line)
 else:
     exec_crawl(opts, check_url)
 
