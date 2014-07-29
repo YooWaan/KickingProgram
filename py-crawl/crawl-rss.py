@@ -97,12 +97,12 @@ class CrawlRss:
         self._depth = 3 if opt is None  else opt.depth
         self._verbose = False if opt is None else opt.verbose
         self._ignore_prefix = ['mail'] if opt is None else opt.ignore_prefix
-        self._ignore_suffix = ['png', 'jpg', 'ico', 'xls', 'xlsx', 'css'] if opt is None else opt.ignore_suffix
+        self._ignore_suffix = ['png', 'jpg', 'ico', 'xls', 'xlsx', 'css', 'pdf'] if opt is None else opt.ignore_suffix
         self._csv_file = opt.csv
 
         self._user_agents = ["Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:9.0.1) Gecko/20100101 Firefox/9.0.1", "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; ARM; Trident/6.0)"]
 
-        self._max_check_pages = 5000
+        self._max_check_pages = 2000
 
     def is_ignore_prefix(self, url):
         for pfx in self._ignore_prefix:
@@ -136,8 +136,8 @@ class CrawlRss:
         if self._csv_file == None:
             print txt
         else:
-            f = opne(self._csv_file, "a")
-            f.write(url + "¥n")
+            f = open(self._csv_file, "a")
+            f.write(txt + os.linesep)
             f.close()
 
     def crawl(self,starturl, url, crawled_urls, rss_lst, depth):
@@ -167,15 +167,8 @@ class CrawlRss:
             for href in links:
                 if href.startswith('#') or href.startswith('javascript:'):
                     continue
-                if href.startswith("http") == False:
-                    if href.startswith('/') and url.endswith('/'):
-                        href = href[1:]
-                    if (url.endswith("/") == False):
-                        self.verbose("url--->" + url[0: url.rindex('/')])
-                        href = url[0: url.rindex('/')] + "/" + href
-                    else:
-                        href = url + href
 
+                href = self.concat_href(starturl, url, href)
                 self.verbose("href=" + href)
 
                 if href.startswith(starturl) == False:
@@ -211,6 +204,18 @@ class CrawlRss:
     def get_base_url(self, url):
         result = urlparse(url)
         return result.scheme + "://" + result.netloc
+
+    def concat_href(self, starturl, url, href):
+        if href.startswith("http"):
+            return href
+
+        if href.startswith('/'):
+            return starturl + href
+
+        if (url.endswith("/") == False):
+            url =  url[0: url.rindex('/')+1]
+
+        return url + href
 
 
 def exec_crawl(opts, url):
