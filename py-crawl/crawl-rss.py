@@ -129,6 +129,9 @@ class CrawlRss:
 
     def crawl(self,starturl, url, crawled_urls, rss_lst, depth):
         self.verbose("urls=" + str(len(crawled_urls)) + ", rss=" + str(len(rss_lst)) + ",cawled?: " + str(url in crawled_urls) + ", DEPTH: " + str(depth) + ", url=" + str(url))
+
+        if (len(crawled_urls) > 10000):
+            return
         if self._depth == depth or url in crawled_urls:
             return
         if self.is_ignore_suffix(url) or self.is_ignore_prefix(url):
@@ -230,9 +233,9 @@ mode = os.fstat(0).st_mode
 if stat.S_ISFIFO(mode) or stat.S_ISREG(mode):
     for line in fileinput.input():
         line = line.rstrip()
-        if (line.startswith("#")):
-            continue
-        exec_crawl(opts, line)
+        if (line.startswith("#") == False):
+            exec_crawl(opts, line)
+
 else:
     exec_crawl(opts, check_url)
 
