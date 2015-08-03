@@ -27,9 +27,11 @@
 __author__ = 'YooWaan'
 
 import os, stat, sys
+import random
 import httplib
 import re
 import fileinput
+import time
 from urlparse import urlparse
 
 class CmdOptions:
@@ -95,7 +97,12 @@ class CrawlRss:
         self._depth = 3 if opt is None  else opt.depth
         self._verbose = False if opt is None else opt.verbose
         self._ignore_prefix = ['mail'] if opt is None else opt.ignore_prefix
-        self._ignore_suffix = ['png', 'jpg', 'ico', 'xls', 'xlsx', 'css'] if opt is None else opt.ignore_suffix
+        self._ignore_suffix = ['png', 'jpg', 'ico', 'xls', 'xlsx', 'css', 'pdf'] if opt is None else opt.ignore_suffix
+        self._csv_file = opt.csv
+
+        self._user_agents = ["Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:9.0.1) Gecko/20100101 Firefox/9.0.1", "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; ARM; Trident/6.0)"]
+
+        self._max_check_pages = 2000
 
     def is_ignore_prefix(self, url):
         for pfx in self._ignore_prefix:
@@ -113,12 +120,6 @@ class CrawlRss:
         if self._verbose:
             print msg
 
-    def run(self,url):
-        crawled_urls = []
-        rss_lst = []
-        self.crawl(url, url, crawled_urls, rss_lst, 0)
-        print url + "," + self.rss_str(rss_lst) +"," + str(len(crawled_urls))
-
     def rss_str(self, rss_lst):
         s = ""
         for rss in rss_lst:
@@ -127,10 +128,21 @@ class CrawlRss:
             s = s + rss
         return s
 
+    def run(self,url):
+        crawled_urls = []
+        rss_lst = []
+        self.crawl(self.get_base_url(url), url, crawled_urls, rss_lst, 0)
+        txt = url + "," + self.rss_str(rss_lst) +"," + str(len(crawled_urls))
+        if self._csv_file == None:
+            print txt
+        else:
+            f = open(self._csv_file, "a")
+            f.write(txt + os.linesep)
+            f.close()
+
     def crawl(self,starturl, url, crawled_urls, rss_lst, depth):
         self.verbose("urls=" + str(len(crawled_urls)) + ", rss=" + str(len(rss_lst)) + ",cawled?: " + str(url in crawled_urls) + ", DEPTH: " + str(depth) + ", url=" + str(url))
-
-        if (len(crawled_urls) > 10000):
+        if (len(crawled_urls) == self._max_check_pages):
             return
         if self._depth == depth or url in crawled_urls:
             return
@@ -141,6 +153,8 @@ class CrawlRss:
         try:
             self.verbose("CHECK: " + url )
             body, sts, isrss = self.communicate(url)
+            if sts == 301 and depth == 0:
+                self.crawl(self.get_base_url(body), body, crawled_urls, rss_lst, depth)
             if sts != 200:
                 return
             # self.verbose(body)
@@ -149,15 +163,17 @@ class CrawlRss:
                 rss_lst.append(url)
                 return
             links = re.findall(r'href=[\'"]?([^\'" >]+)', body)
+            #self.verbose("links=" + str(links))
             for href in links:
-                if href.startswith('#'):
+                if href.startswith('#') or href.startswith('javascript:'):
                     continue
-                if href.startswith("http") == False:
-                    if href.startswith('/') and url.endswith('/'):
-                        href = href[1:]
-                    href = url + href
+
+                href = self.concat_href(starturl, url, href)
+                self.verbose("href=" + href)
+
                 if href.startswith(starturl) == False:
                     continue
+                #time.sleep(0.3)
                 self.crawl(starturl, href, crawled_urls, rss_lst, depth+1)
         except:
             self.verbose("err:" + str(sys.exc_info()[0]))
@@ -173,15 +189,33 @@ class CrawlRss:
             port = urlresult.port
         conn = httplib.HTTPSConnection(urlresult.netloc,port) if secure else httplib.HTTPConnection(urlresult.netloc,port)
         # TODO: check suffix
-        conn.request("GET", urlresult.path);
+        conn.request("GET", urlresult.path, headers = { 'User-Agent' : self._user_agents[ random.randint(0, len(self._user_agents)-1) ] });
         res = conn.getresponse()
-        body = res.read()
         sts = res.status
-        if sts != 200:
-            return None, None, None
+        if (sts == 301):
+            return res.getheader('location'), sts, False
+        body = res.read()
+        #self.verbose("headers=" + str(res.getheaders()))
         contenttype = res.getheader('Content-Type')
+        #self.verbose("sts=" + str(res.status) + ", content type=" + contenttype + "body=¥n" + body)
         conn.close()
         return body, sts, contenttype.find("xml") != -1
+
+    def get_base_url(self, url):
+        result = urlparse(url)
+        return result.scheme + "://" + result.netloc
+
+    def concat_href(self, starturl, url, href):
+        if href.startswith("http"):
+            return href
+
+        if href.startswith('/'):
+            return starturl + href
+
+        if (url.endswith("/") == False):
+            url =  url[0: url.rindex('/')+1]
+
+        return url + href
 
 
 def exec_crawl(opts, url):
