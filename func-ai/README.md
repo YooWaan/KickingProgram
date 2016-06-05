@@ -2,7 +2,7 @@ Memo
 ==========
 
 
-## sbt
+# sbt
 
 ### [Command Reference](http://www.scala-sbt.org/0.13/docs/Running.html)
 
@@ -38,3 +38,49 @@ sbt run
 * ch01.Curve => Curve practice
 
 
+# gyp
+
+### Command Reference
+
+* create project
+
+<pre>
+{
+    'targets': [
+    {
+        'target_name': 'a.out',
+        'type': 'executable',
+        'include_dirs': [
+            'inc',
+        ],
+        'sources': [
+            'src/main.cpp',
+        ],
+    },
+  ],
+}
+</pre>
+
+
+* source build & run
+
+<pre>
+#
+mkdir -p <proj dir>/{inc,src}
+cd <proj dir>
+vi proj.gyp
+
+# write source code
+vi src/main.cpp
+
+# generate build directory
+GYP_GENERATORS=ninja gyp proj.gyp --toplevel-dir=. --depth=0
+
+# build
+cd out/Default
+ninja
+
+# execute 
+./a.out
+
+</pre>
