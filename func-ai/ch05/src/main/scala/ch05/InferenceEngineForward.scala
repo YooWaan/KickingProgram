@@ -1,9 +1,9 @@
 package ch05
 
-import scala.collection.ummutable.HashMap
+import scala.collection.immutable.HashMap
 
 
-class InterfaceEngineForward {
+class InferenceEngineForward {
   type Pat = List[String]
   type Env = HashMap[String,String]
 
@@ -12,7 +12,7 @@ class InterfaceEngineForward {
 
 
   def ruleReader(s: String) = {
-    s.replaceAll().split(',').map(_.trim.split("->").map(factReader(_)).toList).toList
+    s.replaceAll("#.*", "").split(',').map(_.trim.split("->").map(factReader(_)).toList).toList
   }
 
   def factReader(s: String) = {
@@ -40,48 +40,45 @@ class InterfaceEngineForward {
 
   def applyEnv(action: Pat, env: Env): Pat = {
     action match {
-      case Null => Nil
+      case Nil => Nil
       case a::aa => replaceVar(a, env) :: applyEnv(aa, env)
     }
   }
 
-}
-
-def newFacts(actions: List[Pat], env:Env): List[Pat] = {
-  actions match {
-    case Nil => Nil
-    case a::aa => {
-      val f = applyEnv(a, env)
-      if (!facts.contains(f)) f::newFacts(aa,env)
-      else newFacts(aa,env)
-    }
-  }
-}
-
-
-def ruleMatch(patterns: List[Pat], env: Env = new Env): List[Env] = {
-
-  patterns match {
-    case Nil => List(env)
-    case p::pp => facts.map(patMatch(p, _, env)).filter(_ != null).map(ruleMatch(pp,_)).flatten
-  }
-
-}
-
-def forward() {
-  println("------ Facts ----------")
-
-  while (true) {
-    var generated = false
-    for (r <- rules; e <- ruleMatch(r.head)) {
-      val f = newFacts(r.tail.head, e)
-      if (f != Nil) {
-        println(f)
-        facts = facts ::: f
-        generated = true
+  def newFacts(actions: List[Pat], env:Env): List[Pat] = {
+    actions match {
+      case Nil => Nil
+      case a::aa => {
+        val f = applyEnv(a, env)
+        if (!facts.contains(f)) f::newFacts(aa,env)
+        else newFacts(aa,env)
       }
     }
-    if (!generated) return
+  }
+
+  def ruleMatch(patterns: List[Pat], env: Env = new Env): List[Env] = {
+    patterns match {
+      case Nil => List(env)
+      case p::pp => facts.map(patMatch(p, _, env)).filter(_ != null).map(ruleMatch(pp,_)).flatten
+    }
+  }
+
+  def forward() {
+    println("------ Facts ----------")
+
+    while (true) {
+      var generated = false
+      for (r <- rules; e <- ruleMatch(r.head)) {
+        val f = newFacts(r.tail.head, e)
+        if (f != Nil) {
+          println(f)
+          facts = facts ::: f
+          generated = true
+        }
+      }
+      if (!generated) return
+    }
   }
 
 }
+
