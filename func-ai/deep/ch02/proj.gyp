@@ -9,6 +9,7 @@
         'sources': [
             'src/main.cpp',
             'src/stocklearn.cpp',
+            'src/qlearning.cpp',
         ],
     },
   ],
