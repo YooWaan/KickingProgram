@@ -1,7 +1,6 @@
 package ch07
 
 
-
 class FSM(npc: NPC, app: GameApp) {
   val MOVE    = 1
   val SEARCH  = 2
@@ -51,6 +50,5 @@ class FSM(npc: NPC, app: GameApp) {
         if (energy <= fullEnergy/2) state = MOVE
     }
   }
-
 
 }

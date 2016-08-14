@@ -39,8 +39,8 @@ class GameApp extends Application {
   def makeElem(typ: Int) = {
     typ match {
       case GameElem.WALL => new Wall(this)
-      //case GameElem.PLAYER => new Player(this)
-      //case GameElem.ALIEN => new Alien(this)
+      case GameElem.PLAYER => new Player(this)
+      case GameElem.NPC => new NPC(this)
       case _ => null
     }
   }

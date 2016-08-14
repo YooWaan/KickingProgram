@@ -37,6 +37,7 @@ object GameElem {
   val WALL = 1
   val PLAYER = 2
   val ALIEN = 3
+  val NPC = 4
 
   def makeElems(m: Array[Array[Int]], app: GameApp,
     makeElem: (Int) => GameElem) = {
