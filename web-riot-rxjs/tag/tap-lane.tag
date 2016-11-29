@@ -1,9 +1,8 @@
 <tap-lane class="lane pure-u-1-5">
 
-    <div class="bar" each="{w in words}" id="w-{ w.id }"></div>
+    <div class="bar" each="{w in words}" id="w-{ w.id }">{w.text}</div>
 
     <button class="tap button-secondary pure-button" onclick="{ onTap }" >{ opts.label }</button>
-
 
     <style>
      :scope .lane {
@@ -31,40 +30,13 @@
 
     <script>
      var me = this;
-     var count = 0;
-
-     // store
-     me.words = [];
+     me.mixin(Game.Lane);
+     me.name = me.opts.label;
 
      me.on('mount',function() {
+         // store
          me.words = [];
      });
-
-     attach(wd) {
-         me.words.push(wd);
-         me.update({words:me.words});
-         var goal = window.innerHeight * 0.7;
-         anime({
-             targets: [document.getElementById('w-' + wd.id)],
-             translateY: [0, goal],
-             duration: 8000,
-             complete:function() {
-                 var idx = me.words.findIndex(function(w) {
-                     return wd === w;
-                 });
-                 if (idx != -1) {
-                     me.words.splice(idx, 1);
-                 }
-                 console.log("done =>" + me.words.length + " , " + wd.id);
-                 me.update({words:me.words});
-             }
-         });
-     }
-
-     onTap() {
-         count = count + 1;
-         me.attach({id:count, text:'hoge'});
-     }
 
     </script>
 

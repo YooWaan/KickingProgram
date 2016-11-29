@@ -10,31 +10,31 @@
          height:100%;
      }
      :scope .lane {
-         background-color:#ccc;
+         background-color:#efefef;
          border:solid 1px gray;
          height:100%;
      }
     </style>
 
     <script>
-
-     initPanel() {
-         me.config = {
-             lanes : [
-                 {name:'A', key:'a'},
-                 {name:'S', key:'s'}
-             ],
-             words:['hoge', 'foo', 'bayoe']
-         };
-         me.update();
-     }
-     
      var me = this;
+     me.mixin(Game.Panel);
+
      this.on('mount', function(){
-         me.config = {};
-         me.initPanel();
+         me.config = {lanes:[], words:[]};
+         me.initPanel(me);
      });
 
+     findLane(name) {
+         return me.tags['tap-lane'].find(function(t){
+             return t.name === name;
+         });
+     }
+
+     configure(conf) {
+         me.update({config:conf});
+         me.tags['tap-score'].configure(conf.words);
+     }
 
     </script>
 
