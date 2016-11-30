@@ -1,8 +1,10 @@
 // define requires
 var Seq = require('./seq.js').Sequencer;
-var Dp = require('./flux/dispatcher.js').Dispatcher;
 var An = require('./anime.js');
 var Web = require('./web.js');
+
+// architecture dependecies
+var Dp = require('./flux/dispatcher.js').Dispatcher;
 
 // initialize
 (function(win){
@@ -52,7 +54,6 @@ var Web = require('./web.js');
             onReset : function() {
                 dispatcher.dispatch('tap-onreset', this.parent);
             }
-
         }
 
     };
@@ -91,7 +92,7 @@ var Web = require('./web.js');
             }
         });
 
-        // key event attach
+        // score inc
         dispatcher.register('score-up', function(w) {
             panel.tags['tap-score'].inc(w);
         });
