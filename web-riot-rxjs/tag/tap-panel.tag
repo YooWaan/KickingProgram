@@ -19,9 +19,9 @@
     <script>
      var me = this;
      me.mixin(Game.Panel);
+     me.config = {lanes:[], words:[]};;
 
      this.on('mount', function(){
-         me.config = {lanes:[], words:[]};
          me.initPanel(me);
      });
 

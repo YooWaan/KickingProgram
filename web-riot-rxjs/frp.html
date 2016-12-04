@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FRP</title>
+
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+
+    <script src="https://cdn.jsdelivr.net/riot/3.0/riot+compiler.min.js"></script>
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/4.1.0/rx.all.min.js"></script> -->
+    <script src="https://unpkg.com/@reactivex/rxjs/dist/global/Rx.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/1.0.0/anime.min.js"></script>
+
+    <script type="text/javascript" src="frp.js"></script>
+
+    <style type="text/css">
+      html {height:100%;}
+      body {height:100%;}
+    </style>
+</head>
+
+<body>
+  <script type="riot/tag" src="tag/tap-score.tag"></script>
+  <script type="riot/tag" src="tag/tap-lane.tag"></script>
+  <script type="riot/tag" src="tag/tap-panel.tag"></script>
+
+  <tap-panel></tap-panel>
+  <script>riot.mount('tap-panel')</script>
+</body>
+</html>
