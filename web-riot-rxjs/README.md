@@ -5,10 +5,7 @@
 
 ```
 npm init
-npm install gulp --save-dev
 npm install webpack --save-dev
-
-
 ```
 
 
@@ -21,14 +18,25 @@ npm run pack
 
 # start web server
 npm run dev
-
 ```
+
+## Common Modules
+
+* seq.js : interval message word generator
+* anime  : animation utility
+* web.js : xhr utility
 
 ## Flux
 
 * action creator
+   * UI Event handler
+       * lane tap
+       * start/stop tap
 * dispatcher
+   * riotjs observable 
 * callback , store, change event+store queries functions
+   * animation execute
+   * score count up
 
 ## Clean Architecture
 
@@ -42,4 +50,23 @@ npm run dev
           \ IN  (Ovservable)
             /
    [ Entities ]             : Model, Modules
+```
+
+## Reactive Program
+
+```
+
+UI Tags       [==================]
+                   A  A    A
+* event            |  |    |
+   start/stop -x---)--)----)------
+               |   |  |    |
+   lane tap   -)---)--x----)------
+               V   |       |
+* sequencer    o   |       |
+               V   |       |
+   sequencer  -x-x-)-----x-)------
+                 V |     V |
+   anime      ---x-x-----x-x------
+
 ```

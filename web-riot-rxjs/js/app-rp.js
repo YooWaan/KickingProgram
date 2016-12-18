@@ -48,7 +48,7 @@ var Web = require('./web.js');
         Panel : {
             initPanel : function() {
                 // reactive functions
-                // panel,score ¥¿¥°¤Ø¤Î»²¾È¤¬É¬Í×¤Ê¤Î¤Ç¡¢¤³¤³¤Ç¤¤¤í¤¤¤íÀßÄê
+                // panel,score ã®å‚ç…§ãŒå¿…è¦ãªã®ã§ã€ã“ã“ã§è¨­å®š
                 var panel = this;
                 var score = panel.tags['tap-score'];
                 initializeSource
