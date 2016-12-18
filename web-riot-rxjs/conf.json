@@ -1,0 +1,13 @@
+{
+    "lanes" : [
+        {"name":"A", "key":"a"},
+        {"name":"S", "key":"s"}
+    ],
+    "words":[
+        {"w":"hoge", "s":0},
+        {"w":"foo",  "s":0},
+        {"w":"bayoe","s":0} 
+
+    ],
+    "seqCount": 10
+}
