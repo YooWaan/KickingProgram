@@ -48,8 +48,9 @@ var Web = require('./web.js');
         Panel : {
             initPanel : function() {
                 // reactive functions
-                // panel タグへの参照が必要なので、ここでいろいろ設定
+                // panel,score タグへの参照が必要なので、ここでいろいろ設定
                 var panel = this;
+                var score = panel.tags['tap-score'];
                 initializeSource
                     .subscribe(function(prm) {
                         prm.then(function(res) {
@@ -69,12 +70,13 @@ var Web = require('./web.js');
                     });
 
                 scoreupSource
-                    .filter(function(score){
-                        return score.words.length > 0
-                            && 85 <= score.words[0].Ypos && score.words[0].Ypos <= 95
+                    .filter(function(lane){
+                        console.log(lane);
+                        return lane.words.length > 0
+                            && 85 <= lane.words[0].Ypos && lane.words[0].Ypos <= 95
                     })
-                    .map(function(score) {
-                        return score.words[0].text;
+                    .map(function(lane) {
+                        return lane.words[0].text;
                     })
                     .subscribe(function(w){
                         score.inc(w);

@@ -3,7 +3,7 @@ module.exports = {
     app: ["./js/main.js"],
     flux: ["./js/app-flux.js"],
     clean: ["./js/app-clean.js"],
-    frp: ["./js/app-frp.js"]
+    rp: ["./js/app-rp.js"]
   },
   output: {
     filename: "./[name].js"
