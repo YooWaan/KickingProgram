@@ -15,21 +15,13 @@ var Web = require('./web.js');
     var animeSource = new Rx.Subject();
     var scoreupSource = new Rx.Subject();
 
+    var uiEventSource = new Rx.Subject();
     var sequenceSource = new Rx.Subject();
     var sequencer = new Seq(function(wd) {
         sequenceSource.next(wd);
     });
 
-    sequenceSource
-        .map(function(flg){
-            return flg ? sequencer.start() : sequencer.stop();
-        })
-        .subscribe(function(result){
-            if (!result) {
-                alert('already done');
-            }
-        });
-
+    // reactice functions
     var animeSubscribe = function(msg) {
         var me = msg.lane;
         var wd = msg.word;
@@ -40,11 +32,23 @@ var Web = require('./web.js');
     };
     animeSource.subscribe(animeSubscribe)
 
+    uiEventSource
+        .map(function(flg){
+            return flg ? sequencer.start() : sequencer.stop();
+        })
+        .subscribe(function(result){
+            if (!result) {
+                alert('already done');
+            }
+        });
+
     var mixin = {
 
         // panel presenter
         Panel : {
             initPanel : function() {
+                // reactive functions
+                // panel タグへの参照が必要なので、ここでいろいろ設定
                 var panel = this;
                 initializeSource
                     .subscribe(function(prm) {
@@ -80,6 +84,10 @@ var Web = require('./web.js');
             }
         },
 
+        //
+        // subscribers
+        //
+
         // lane presenter
         Lane : {
             attach : function(wd) {
@@ -94,11 +102,11 @@ var Web = require('./web.js');
         // score presenter
         Score : {
             onStart : function() {
-                sequenceSource.next(true);
+                uiEventSource.next(true);
             },
 
             onStop : function() {
-                sequenceSource.next(false);
+                uiEventSource.next(false);
             },
 
             onReset : function() {
