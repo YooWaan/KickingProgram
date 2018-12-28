@@ -1,0 +1,21 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+numpy = "==1.13.3"
+matplotlib = "==2.1.2"
+vpython = "==7.3.2"
+networkx = "==2.1"
+scipy = "==0.19.1"
+sympy = "==1.1.1"
+PuLP = "==1.6.8"
+PICOS = "==1.1.2"
+cvxopt = "==1.2.2"
+pycddlib = "==2.1.0"
+
+[requires]
+python_version = "3.5"
