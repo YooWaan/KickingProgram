@@ -25,3 +25,18 @@ print('Optimal value=', value(prob.objective))
 
 for v in prob.variables():
     print(v.name, '=', v.varValue)
+
+
+AT = A.T
+dual = LpProblem(name='Dual_Production', sense=LpMinimize)
+y = [LpVariable('y'+str(i+1), lowBound=0) for i in range(m)]
+dual += lpDot(b, y)
+
+for j in range(n):
+    dual += lpDot(AT[j], y) >= c[j], 'ineq'+str(j)
+
+dual.solve()
+print(LpStatus[dual.status])
+print('Optimal value of dual problem =', value(dual.objective))
+for v in dual.variables():
+    print(v.name, '=', v.varValue)
