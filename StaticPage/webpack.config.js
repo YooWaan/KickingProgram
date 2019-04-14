@@ -20,8 +20,6 @@ module.exports = {
         test: /\.vue$/,
         loader: 'vue-loader'
       },
-      // this will apply to both plain `.js` files
-      // AND `<script>` blocks in `.vue` files
       {
         test: /\.js$/,
         loader: 'babel-loader',
@@ -46,7 +44,7 @@ module.exports = {
 	  filename: 'vuex.html'
     })
   ],
-  externals: {
-    vue: 'vue'
-  }
+  externals: [
+    'Vue'
+  ]
 };

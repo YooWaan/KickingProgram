@@ -11,8 +11,8 @@
 
 <script>
 export default {
-  data : {
-    name: ''
+  data : function() {
+    return {name: ''};
   },
   computed: {
     showText() {
