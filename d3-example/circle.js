@@ -1,26 +1,85 @@
 
 var nodeData = {
-    "name": "TOPICS", "children": [{
-        "name": "Topic A", "children": [
-          {"name": "Sub A1", "size": 4}, {"name": "Sub A2", "size": 4}
+    "name": "TOPICS", 
+    "children": [
+    {
+        "name": "Relation", "children": [
+          {"name": "EQ", "size": 4}, {"name": "Environment", "size": 4}
         ]
     }, {
-        "name": "Topic B",  "children": [
-          {"name": "Sub B1", "size": 3}, {"name": "Sub B2", "size": 3},
-          {"name": "Sub B3", "size": 3}
+        "name": "Growth",  "children": [
+          {"name": "Method", "size": 3}, {"name": "Direction", "size": 3},
+          {"name": "Model", "size": 3}
         ]
     }, {
-        "name": "Topic C", "children": [
-          {"name": "Sub A1", "size": 4}, {"name": "Sub A2", "size": 4}
+        "name": "Ability/Capability", "children": [
+          {"name": "Skill", "size": 3}, {"name": "Competency", "size": 3},
+          {"name": "Experience", "size": 3}
+        ]
+    }, {
+        "name": "Bias",  "children": [
+          {"name": "Body", "size": 3}, {"name": "Location", "size": 3},
+          {"name": "Illusion", "size": 3}
+        ]
+    }, {
+        "name": "Mind", "children": [
+          {"name": "Character", "size": 3}, {"name": "Calculation", "size": 3},
+          {"name": "Memory", "size": 3}
         ]
     }]
 };
 
 
+var dark = [
+  '#B08B12',
+  '#BA5F06',
+  '#8C3B00',
+  '#6D191B',
+  '#842854',
+  '#5F7186',
+  '#193556',
+  '#137B80',
+  '#144847',
+  '#254E00'
+];
+
+var mid = [
+  '#E3BA22',
+  '#E58429',
+  '#BD2D28',
+  '#D15A86',
+  '#8E6C8A',
+  '#6B99A1',
+  '#42A5B3',
+  '#0F8C79',
+  '#6BBBA1',
+  '#5C8100'
+];
+
+var light = [
+  '#F2DA57',
+  '#F6B656',
+  '#E25A42',
+  '#DCBDCF',
+  '#B396AD',
+  '#B0CBDB',
+  '#33B6D0',
+  '#7ABFCC',
+  '#C8D7A1',
+  '#A0B700'
+];
+
+var palettes = [light, mid, dark];
+var lightGreenFirstPalette = palettes
+  .map(d => d.reverse())
+  .reduce((a, b) => a.concat(b));
+
+
 var width = 500;  // <-- 1
 var height = 500;
 var radius = Math.min(width, height) / 2;  // < -- 2
-var color = d3.scaleOrdinal(d3.schemeCategory20b);   // <-- 3
+//var color = d3.scaleOrdinal(d3.schemeCategory20b);   // <-- 3
+var color = d3.scaleOrdinal(lightGreenFirstPalette);   // <-- 3
 
 
 var g = d3.select('svg')  // returns a handle to the <svg> element
@@ -57,7 +116,6 @@ g.selectAll('path')  // <-- 1
     .text(d => {
       return d.parent === null ? '' : `${d.ancestors().map(d => d.data.name).reverse().join("/")}\n${format(d.value)}`;
     });
-
 
 
 function labelVisible(d) {
