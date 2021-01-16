@@ -16,3 +16,6 @@ py:
 
 ts:
 	npx ts-node typ.ts
+
+py-check:
+	poetry run mypy typ.py
