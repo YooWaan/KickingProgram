@@ -35,6 +35,10 @@ class VInt(Value[int]):
 class VStr(Value[str]):
     def __init__(self, value: str):
         super().__init__(value)
+    def __len__(self):
+        return 999
+    def __str__(self):
+        return self.value()
 
 
 sv = Value[str]('hello')
@@ -45,4 +49,16 @@ s = VStr('Hello')
 
 print(f'{sv.value()} , {iv.value()}')
 print(f'{i.value()} {i.hex()} , {s.value()}')
+
+
+ss = "1000"
+print(f'{ss} = {type(ss)}')
+ss = 100
+print(f'{ss} = {type(ss)}')
+
+
+ll = [1,2,3]
+ss = "Hello"
+
+print(f'{ll} = {len(ss)}, {ss} = {len(ss)}, {s} = {len(s)}')
 
