@@ -82,3 +82,10 @@ fn(ss.upper());
 
 //fn(vn);
 
+
+const sss: any = '100';
+const iii: any = 100;
+const fff: number = 100.0;
+
+console.log(typeof (sss + iii));
+console.log(typeof (iii + fff));

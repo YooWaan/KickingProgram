@@ -33,7 +33,7 @@ java-chk:
 	javac g.java
 
 py-chk:
-	poetry run mypy typ.py
+	poetry run mypy --disallow-untyped-defs typ.py 
 
 ts-chk:
 	npx tsc typ.ts
