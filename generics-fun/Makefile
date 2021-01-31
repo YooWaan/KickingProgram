@@ -12,6 +12,19 @@ show:
 	poetry env info
 
 
+init: init-java init-py init-js
+
+init-java:
+	@rm -f junit-console.jar
+	@wget -O junit-console.jar https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.7.0/junit-platform-console-standalone-1.7.0.jar
+
+init-py:
+	poetry install
+
+init-js:
+	npm ci
+
+
 clean:
 	@rm -f *.class
 	@rm -f __pycache__
@@ -19,8 +32,9 @@ clean:
 
 
 java:
-	javac g.java
-	java g
+	javac -classpath $(PWD)/junit-console.jar g.java
+	javac -classpath $(PWD):$(PWD)/junit-console.jar gt.java
+	java -jar junit-console.jar -cp $(PWD) --scan-classpath -n gt
 
 
 py:
