@@ -1,4 +1,4 @@
-
+OPT=
 
 show:
 	@echo "____Java Env____"
@@ -31,11 +31,11 @@ clean:
 	@rm -f typ.js
 
 
-java:
-	javac -classpath $(PWD)/junit-console.jar g.java
-	javac -classpath $(PWD):$(PWD)/junit-console.jar gt.java
-	java -jar junit-console.jar -cp $(PWD) --scan-classpath -n gt
+java: javac-test
+	java -jar junit-console.jar -cp $(PWD) --scan-classpath -n gt  $(OPT)
 
+javac-test: java-chk
+	javac -classpath $(PWD):$(PWD)/junit-console.jar gt.java
 
 py:
 	python typ.py
@@ -44,7 +44,7 @@ ts:
 	npx ts-node typ.ts
 
 java-chk:
-	javac g.java
+	javac -classpath $(PWD)/junit-console.jar g.java
 
 py-chk:
 	poetry run mypy --disallow-untyped-defs typ.py 
