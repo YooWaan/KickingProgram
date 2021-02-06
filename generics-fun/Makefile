@@ -38,7 +38,7 @@ javac-test: java-chk
 	javac -classpath $(PWD):$(PWD)/junit-console.jar gt.java
 
 py:
-	python typ.py
+	poetry run pytest -s -v test_typ.py$(OPT)
 
 ts:
 	npx ts-node typ.ts
@@ -47,7 +47,9 @@ java-chk:
 	javac -classpath $(PWD)/junit-console.jar g.java
 
 py-chk:
-	poetry run mypy --disallow-untyped-defs typ.py 
+	poetry run mypy --strict typ.py test_typ.py
+
+#@poetry run mypy --disallow-untyped-defs typ.py test_typ.py
 
 ts-chk:
 	npx tsc typ.ts
