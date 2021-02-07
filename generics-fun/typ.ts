@@ -1,5 +1,5 @@
 
-interface ToString {
+export interface ToString {
     value(): string;
 }
 
@@ -16,6 +16,16 @@ interface ToCase extends Var<string> {
     lower(): string;
 }
 
+export interface Point2 {
+    x: number
+    y: number
+}
+
+export interface Point3 {
+    x: number
+    y: number
+    z: number
+}
 
 
 const Val = <T>(v: T): Var<T> => {
@@ -30,7 +40,7 @@ const Val = <T>(v: T): Var<T> => {
 };
 
 
-class Value<T> {
+export class Value<T> {
     val: T;
     constructor(v: T) {
         this.val = v;
@@ -68,7 +78,18 @@ export class VStr extends Value<string> {
     }
 };
 
+export class VNum extends VStr {
+    constructor(v: number) {
+        super(Number(v).toString());
+    }
+    num():number {
+        return parseInt(this.value());
+    }
+}
 
+export type Eco<T> = T extends VStr ? VStr : never;
+
+/*
 const fn = (s: string):void => {
     console.log(s);
 }
@@ -102,7 +123,7 @@ const valst: Array<ToString> = new Array(vs, vn, fvn, fvs, vss, ii, ss);
 printStr(lst);
 printStr(vlst);
 printStr(valst);
-
+*/
 
 
 //fn(100);

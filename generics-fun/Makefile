@@ -27,7 +27,7 @@ init-js:
 
 clean:
 	@rm -f *.class
-	@rm -f __pycache__
+	@rm -rf __pycache__
 	@rm -f typ.js
 
 
@@ -41,7 +41,7 @@ py:
 	poetry run pytest -s -v test_typ.py$(OPT)
 
 ts:
-	npx ts-node typ.ts
+	npm run test $(OPT)
 
 java-chk:
 	javac -classpath $(PWD)/junit-console.jar g.java
