@@ -49,7 +49,7 @@ expr
     {
         $$ = NumExpr{literal: $1.literal}
     }
-    | expr '+' expr
+    | %left '+' STRING
     {
         $$ = BinOpExpr{left: $1, operator: '+', right: $3}
     }
