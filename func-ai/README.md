@@ -22,7 +22,7 @@ sbt clean
 
 sbt clean compile
 
-sbt run 
+sbt run
 </pre>
 
 
@@ -80,7 +80,7 @@ GYP_GENERATORS=ninja gyp proj.gyp --toplevel-dir=. --depth=0
 cd out/Default
 ninja
 
-# execute 
+# execute
 ./a.out
 
 </pre>

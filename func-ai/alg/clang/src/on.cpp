@@ -2,7 +2,7 @@
 using namespace std;
 
 
-int main() {
+void on() {
   int N;
   cin >> N ;
 
