@@ -4,7 +4,7 @@ project( my_alg CXX )
 
 #include_directories(./inc)
 
-add_library( other OBJECT src/cmd.cpp)
+add_library( other OBJECT src/cmd.cpp src/current_point.cpp)
 target_include_directories( other PRIVATE ./inc)
 target_compile_options( other PUBLIC -w -Wall )
 target_compile_features( other PUBLIC cxx_std_17)

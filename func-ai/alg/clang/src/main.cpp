@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "cmd.h"
+#include "ex1.h"
 
 using namespace std;
 
@@ -21,8 +22,11 @@ int main(int argc, char *argv[]) {
     name.assign(argv[1]);
   }
 
-  Command cmd = Command{ "help", help };
+  Command cmd = Command{ "help", help },
+    cp = Command{"cp", current_point};
+
   commands.push_back(cmd);
+  commands.push_back(cp);
 
 
   auto result = find_if(commands.cbegin(), commands.cend(), [name](Command c) {

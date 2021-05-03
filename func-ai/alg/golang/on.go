@@ -20,10 +20,14 @@ func on() {
 
 func main() {
 	r := flag.String("n", "on", "run func name")
+	n := flag.Int("c", "count", "calc count")
 
+	flag.Parse()
 
 	switch *r {
 	case "on":
 		on()
+	case "cp":
+		CurretnPoint(n)
 	}
 }

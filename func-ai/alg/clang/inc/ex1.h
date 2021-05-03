@@ -4,5 +4,6 @@
 
 void on();
 
+int current_point(int argc, char* argv[]);
 
 #endif
