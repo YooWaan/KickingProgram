@@ -29,6 +29,41 @@ var nodeData = {
     }]
 };
 
+var params = new URL(window.location).searchParams;
+console.log(params.get('lang'));
+
+if (params.get('lang') === 'ja') {
+nodeData = {
+    "name": "TOPICS",
+    "children": [
+    {
+        "name": "Relation", "children": [
+          {"name": "EQ", "size": 4}, {"name": "Environment", "size": 4}
+        ]
+    }, {
+        "name": "Growth",  "children": [
+          {"name": "Method", "size": 3}, {"name": "Direction", "size": 3},
+          {"name": "Model", "size": 3}
+        ]
+    }, {
+        "name": "能力／潜在能力", "children": [
+          {"name": "Skill", "size": 3}, {"name": "Competency", "size": 3},
+          {"name": "Experience", "size": 3}
+        ]
+    }, {
+        "name": "Bias",  "children": [
+          {"name": "Body", "size": 3}, {"name": "Location", "size": 3},
+          {"name": "Illusion", "size": 3}
+        ]
+    }, {
+        "name": "Mind", "children": [
+          {"name": "Character", "size": 3}, {"name": "Calculation", "size": 3},
+          {"name": "Memory", "size": 3}
+        ]
+    }]
+};
+  console.log('lang = ja');
+}
 
 var dark = [
   '#B08B12',
@@ -146,7 +181,7 @@ function labelTransform(d) {
 function lblTf(d) {
   var x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
   var yy = arc.centroid(d);
-  console.log(d);
+  //console.log(d);
   return `translate(${yy}) rotate(${x})`;
 };
 
