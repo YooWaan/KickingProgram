@@ -14,7 +14,6 @@ https://docs.rs/esparse/0.1.0/esparse/lex/index.html
 BNF
 
 
-Rule
 
 ```
 Program ::= <Rule>
@@ -75,11 +74,17 @@ rules:
 
 ```
 
-vars {
-     var-name(nil|123|""|true/false|context.productID)
-}
+goyacc -p Exp -o parse/lang.go parse/lang.y
 
-- {
+vars (
+     var-name(nil|123|""|true/false|context.productID)
+
+     companyid = nil
+     product_id = 100
+     no_option = true
+     chk_id = context.userID
+)
+
 
   productAdmin()
   productViewer()
@@ -103,8 +108,6 @@ vars {
   userID == ?
   companyID == ?
   unitID == ?
-  
-}
 
 
 ```
