@@ -1,5 +1,4 @@
-
-
+fu
 CDIR=clang
 GODIR=golang
 RSTDIR=rust
@@ -20,5 +19,9 @@ go:
 
 rust:
 	@cd $(RSTDIR)
-
+	cargo build
 	@cd $(PWD)
+
+
+doc:
+	pandoc -s -t html5 -o foo.html --mathml docs/ex1.md docs/ex2.md
