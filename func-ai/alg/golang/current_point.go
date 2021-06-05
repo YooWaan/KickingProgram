@@ -6,6 +6,8 @@ import (
 	"math"
 )
 
+// chapter 2.4
+
 func calcDist(x1, x2, y1, y2 float64) float64 {
 	return math.Sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))
 }
