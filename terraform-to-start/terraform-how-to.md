@@ -4,6 +4,8 @@
 
 ### for target
 
+実際に Terraform を始める前に触ってみて、やる・やらを決めるたい層の方を対象にしています。
+やることを決めている方は、入門書や公式サイトを参照ください
 
 
 ## intro
@@ -15,10 +17,23 @@
 
 ### flow
 
-
+1. create tf file
+2. check tf file
+3. state apply or import
+4. 
 
 
 ## Learn Command
+
+### Hello world
+
+
+### using variable
+
+
+### using input output
+
+### build in local
 
 
 
