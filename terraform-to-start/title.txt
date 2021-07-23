@@ -1,0 +1,6 @@
+---
+title: タイトル
+author: YooWaan
+rights: © 2021 YooWaan
+language: ja-JP
+...

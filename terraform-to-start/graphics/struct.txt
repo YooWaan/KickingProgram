@@ -1,0 +1,44 @@
+digraph g {
+  graph [
+  rankdir = "LR"
+  ];
+  node [
+  fontsize = "16"
+  shape = "ellipse"
+  ];
+  edge [];
+
+
+	subgraph cluster_0 {
+    "node0" [
+						 label = "<f0> .tf file| <f1>"
+						 shape = "record"
+						 ];
+
+		label = "Terraform file";
+  }
+
+
+	subgraph cluster_1 {
+    "node1" [
+						 label = "<f0> Resource| <f1>"
+						 shape = "record"
+						 ];
+
+		label = "Controls";
+  }
+
+	subgraph cluster_2 {
+    "node2" [
+						 label = "<f0> Terraform State| <f1>"
+						 shape = "record"
+						 ];
+
+		label = "Controls State";
+  }
+
+
+	"node0" -> "node1" [label="aaaa"]
+	"node0" -> "node2" [label="bb"]
+	"node1" -> "node2" [label="Sync", dir="both"]
+}
