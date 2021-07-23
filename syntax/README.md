@@ -13,7 +13,7 @@ https://docs.rs/esparse/0.1.0/esparse/lex/index.html
 
 BNF
 
-
+https://github.com/mattn/anko
 
 ```
 Program ::= <Rule>
@@ -35,6 +35,21 @@ Rule ::= <Name> <Condtions>
 Conditions ::= <primitive>
     | <condition> <op> <condition>
     | <Function>
+
+
+variable() {
+   xxxxx int = default
+   yyyyy bool = True/False
+   zzzz  str = "default"
+}
+
+fn xxxx() {
+}
+
+name {
+    isCommaAdmin(xxxx)
+}
+
 
 ```
 
