@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.13)
 
 project( my_alg CXX )
 
 #include_directories(./inc)
 
-add_library( other OBJECT src/cmd.cpp src/current_point.cpp)
+add_library( other OBJECT src/cmd.cpp src/current_point.cpp src/e31.cpp)
 target_include_directories( other PRIVATE ./inc)
 target_compile_options( other PUBLIC -w -Wall )
 target_compile_features( other PUBLIC cxx_std_17)

@@ -1,6 +1,7 @@
 //mod ex1;
 
 extern crate clap;
+
 use clap::{Arg, App, SubCommand};
 //use clap::{Arg, App, SubCommand};
 
@@ -9,24 +10,25 @@ use clap::{Arg, App, SubCommand};
 fn main() {
     let matches = App::new("My Super Program")
         .version("1.0")
-        .author("Kevin K. <kbknapp@gmail.com>")
+        .author("y")
         .about("Does awesome things")
-
-		.args_from_usage(
+				/*
+				.args_from_usage(
             "-c, --config=[FILE] 'Sets a custom config file'
                               <INPUT>              'Sets the input file to use'
                               -v...                'Sets the level of verbosity'")
-
+				*/
         .subcommand(SubCommand::with_name("test")
                     .about("controls testing features")
                     .version("1.3")
-                    .author("Someone E. <someone_else@other.com>")
-                    .arg_from_usage("-d, --debug 'Print debug information'"))
+                    .author("Y")
+                    .arg(Arg::with_name("d")
+												 .help("--debug 'Print debug information'")))
         .get_matches();
 
 
-    let config = matches.value_of("config").unwrap_or("default.conf");
-    println!("Value for config: {}", config);
+    //let config = matches.value_of("config").unwrap_or("default.conf");
+    //println!("Value for config: {}", config);
 
     //println!("Using input file: {}", matches.value_of("INPUT").unwrap());
 

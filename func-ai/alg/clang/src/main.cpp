@@ -4,6 +4,7 @@
 
 #include "cmd.h"
 #include "ex1.h"
+#include "ex3.h"
 
 using namespace std;
 
@@ -23,10 +24,12 @@ int main(int argc, char *argv[]) {
   }
 
   Command cmd = Command{ "help", help },
-    cp = Command{"cp", current_point};
+    cp = Command{"cp", current_point},
+		cmde31 = Command{"e31", e31};
 
   commands.push_back(cmd);
   commands.push_back(cp);
+  commands.push_back(cmde31);
 
 
   auto result = find_if(commands.cbegin(), commands.cend(), [name](Command c) {
