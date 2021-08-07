@@ -450,26 +450,26 @@ Expdefault:
 		ExpDollar = ExpS[Exppt-0 : Exppt+1]
 //line parse/lang.y:31
 		{
-			Explex.(*ExpLexer).Expr = nil
+			Explex.(*Lexer).Expr = nil
 		}
 	case 2:
 		ExpDollar = ExpS[Exppt-1 : Exppt+1]
 //line parse/lang.y:35
 		{
-			Explex.(*ExpLexer).EvalContext = ExpDollar[1].ctx
+			Explex.(*Lexer).EvalContext = ExpDollar[1].ctx
 		}
 	case 3:
 		ExpDollar = ExpS[Exppt-1 : Exppt+1]
 //line parse/lang.y:42
 		{
 			ExpVAL.ctx = EvalContext{}
-			ExpVAL.ctx.Put(ExpDollar[1].nv)
+			ExpVAL.ctx.PutNV(ExpDollar[1].nv)
 		}
 	case 4:
 		ExpDollar = ExpS[Exppt-3 : Exppt+1]
 //line parse/lang.y:47
 		{
-			ExpVAL.ctx.Put(ExpDollar[3].nv)
+			ExpVAL.ctx.PutNV(ExpDollar[3].nv)
 		}
 	case 5:
 		ExpDollar = ExpS[Exppt-3 : Exppt+1]

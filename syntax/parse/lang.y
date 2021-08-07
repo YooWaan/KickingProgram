@@ -29,11 +29,11 @@ package parse
 validator :
    /*	nothing */
    {
-      Explex.(*ExpLexer).Expr = nil
+      Explex.(*Lexer).Expr = nil
    }
    | vars
    {
-			Explex.(*ExpLexer).EvalContext = $1
+			Explex.(*Lexer).EvalContext = $1
    }
 
 
@@ -41,11 +41,11 @@ vars:
    var
    {
 	   $$ = EvalContext{}
-		 $$.Put($1)
+		 $$.PutNV($1)
    }
    | vars newlines var
    {
-		 $$.Put($3)
+		 $$.PutNV($3)
    }
 
 var :

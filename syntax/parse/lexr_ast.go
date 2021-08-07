@@ -1,11 +1,11 @@
 package parse
 
 import (
-	"fmt"
-	"strings"
+	//"fmt"
+	//"strings"
 	"text/scanner"
 	"strconv"
-	"errrors"
+	"errors"
 )
 
 const (
@@ -61,15 +61,21 @@ type (
 	Lexer struct {
 		scanner.Scanner
 		Value KeyValue
-		Context EvalContext
+		EvalContext EvalContext
+		Expr Expr
+		Err error
 	}
 )
 
 func (ec *EvalContext) Put(n string, v Value) {
 	if ec.Variables == nil {
-		ec.Variables = map[strng]Value{}
+		ec.Variables = map[string]Value{}
 	}
 	ec.Variables[n] = v
+}
+
+func (ec *EvalContext) PutNV(nv *NamedVar) {
+	ec.Put(nv.Name, nv)
 }
 
 func NewNamedVar(n string, v Value) *NamedVar {
@@ -88,36 +94,33 @@ func (b *BoolVar) Val() interface{} { return b.Bool }
 
 func (i *IntVar) Val() interface{} { return i.Int64 }
 
+func (i *NilVar) Val() interface{} { return nil }
+
+
 func (l *Lexer) Lex(lval *ExpSymType) int {
-	token, ss := l.Scan(), l.TokenText()
-	println(fmt.Sprintf("Lex:[%v] %v %v [%s] %v", token, scanner.Ident, scanner.Comment, ss, scanner.ScanStrings))
-	if token == scanner.EOF {
-		return 0
+	tk, text, err := l.ScanToken(l.Scan(), l.TokenText())
+
+	println("Lex;", tk, ", txt:", text)
+
+	if err != nil {
+		l.Err = err
 	}
-	println(fmt.Sprintf("%d; %v>%s", ':', token, ss))
-	if token == ':' {
-		return COLON
-	}
-	println(fmt.Sprintf("Lex:[%v] <> %v", token, scanner.String))
-	if token == scanner.RawString || token == scanner.Ident || token == scanner.String {
-		lval.s = ss
-		return STRING
-	}
-	return int(token)
+	lval.s = text
+
+	return tk
 }
 
-func (l *Lexer) Scan(token rune, text string) (int, string, error) {
+func (l *Lexer) ScanToken(token rune, text string) (int, string, error) {
 	if token == scanner.EOF {
 		return 0, text, nil
 	}
 
 	switch token {
 	case scanner.Int:
-
-	case scanner.RawString, scanner.String:
-
-	case scanner.Ident:
-
+		return INTEGER, text, nil
+	case scanner.RawString, scanner.String, scanner.Ident:
+		return STRING, text, nil
+		//case scanner.Ident:
 	}
 
 	if text == "true" {
@@ -131,7 +134,10 @@ func (l *Lexer) Scan(token rune, text string) (int, string, error) {
 		return NIL, text, nil
 	}
 
-	return token, text, errors.New("unknown syntax")
+
+	println("uunknown.....[", text, "], str:", scanner.ScanStrings, ",ch", scanner.ScanChars, "Int:", scanner.ScanInts, ",Float:", scanner.ScanFloats)
+	
+	return int(token), text, errors.New("unknown syntax")
 }
 
 
