@@ -3,6 +3,10 @@
 
 https://about.sourcegraph.com/go/gophercon-2018-how-to-write-a-parser-in-go/
 
+
+http://www.momo.cs.okayama-u.ac.jp/~sasakura/jikken/2017/yacc-lex/yacc.pdf
+https://muunyblue.github.io/aad64398a969ec3186800d412fa7ab31.html
+
 java flex
 https://github.com/jflex-de/jflex
 

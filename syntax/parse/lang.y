@@ -20,7 +20,7 @@ package parse
 }
 
 // %token<empty> COLON AND ORÅ@FLOAT 
-%token<s> STRING TRUE FALSE INTEGER NIL
+%token<s> STRING TRUE FALSE INTEGER NIL EEQ NEQ AAND OOR
 
 %left ','
 
