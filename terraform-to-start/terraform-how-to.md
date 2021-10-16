@@ -44,24 +44,40 @@
 
 ```
 
+configuration
+
+
+
+resource data
+
+
+
+
 
 ### flow
 
 1. create tf file
 2. check tf file
-3. state apply or import
-4. 
+3. state import (or apply if already exists) 
+4. plan
+5. apply
+6. destroy
 
 
-## Learn Command
+
+|  Item 1 | Item 2   |
+| ------- | -------- |
+|  row1   | row 1    |
+
+
+## Learn Terraform
 
 ### Hello world
 
 
-### using variable
+### using variable input output
 
 
-### using input output
 
 ### build in local
 
