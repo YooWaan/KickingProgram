@@ -1,12 +1,12 @@
 package parse
 
 import (
-	//"fmt"
-	//"strings"
-	"text/scanner"
-	"strconv"
 	"errors"
-	"reflect"
+	"fmt"
+	"strings"
+	//"reflect"
+	"strconv"
+	"text/scanner"
 )
 
 const (
@@ -15,12 +15,25 @@ const (
 	VarTypeStr
 	VarTypeBool
 
+	OpUnknown = 0
+	OpAnd     = 1
+	OpOr      = 2
 
-	CmpEq = 0
-	CmpLt = 1
-	CmpNotMatch = -1
-	CmpGt = -2
+	CmpEq       = 0
+	CmpLt       = 1
+	CmpLe       = 2
+	CmpNotMatch = 3
+	CmpNotEq    = -1
+	CmpGt       = -2
+	CmpGe       = -3
 )
+
+var opToken = map[string]int{
+	"==": EEQ,
+	"!=": NEQ,
+	"&&": AAND,
+	"||": OOR,
+}
 
 type (
 	Expr interface {
@@ -37,9 +50,7 @@ type (
 		Compare(Value) int
 	}
 
-  FuncExpr struct {
-  	 Args map[string]Value
-  }
+	Args []Value
 
 	EvalContext struct {
 		Variables map[string]Value
@@ -47,29 +58,33 @@ type (
 
 	Hands struct {
 		Left  Expr
-		Rgiht Expr
+		Right Expr
+		Op    int
 	}
 
 	ValueHands struct {
-		Left Value
+		Left  Value
 		Right Value
 	}
-	
+
 	EvalEqExpr struct {
 		Hands
 	}
 
 	OpExpr struct {
-		Left Value
+		Left  Value
 		Right Value
 		Op    int
 	}
 
 	NamedVar struct {
-		Name string
+		Name  string
 		Value Value
+		IsRef bool
 	}
-	
+
+	NamedVars []NamedVar
+
 	StrVar struct {
 		String string
 	}
@@ -82,19 +97,28 @@ type (
 		Bool bool
 	}
 
-	NilVar struct {}
-	
+	NilVar struct{}
+
+	FuncExpr struct {
+		Name string
+		Args Args
+	}
+
 	Lexer struct {
 		scanner.Scanner
-		Value KeyValue
+		Value       KeyValue
 		EvalContext EvalContext
-		Expr Expr
-		Err error
+		Expr        Expr
+		Err         error
 	}
 )
 
-func NewHands(l, r Expr) Hands {
-	return Hands{Left: l, Right: r}
+var (
+	NilValue = &NilVar{}
+)
+
+func NewHands(l, r Expr) *Hands {
+	return &Hands{Left: l, Right: r}
 }
 
 func (h Hands) HasBoth() bool {
@@ -105,12 +129,24 @@ func (h Hands) EvalHand() bool {
 	if h.Left == nil && h.Right == nil {
 		return false
 	}
-	if h.Right != nil {
+	if h.Left == nil {
 		return h.Right.Eval()
 	}
-	return h.Left.Eval()
+	if h.Right == nil {
+		return h.Left.Eval()
+	}
+	if h.Op == OpAnd {
+		return h.Right.Eval() == h.Left.Eval()
+	}
+	if h.Op == OpAnd {
+		return h.Right.Eval() || h.Left.Eval()
+	}
+	return false
 }
 
+func NewEvalContext() *EvanContext {
+	return &EvalContext{Variables: map[string]Value{}}
+}
 
 func (ec *EvalContext) Put(n string, v Value) {
 	if ec.Variables == nil {
@@ -123,54 +159,122 @@ func (ec *EvalContext) PutNV(nv *NamedVar) {
 	ec.Put(nv.Name, nv)
 }
 
+func (ec *EvanContext) Merge(ec *EvanContext) {
+	if ec == nil {
+		return
+	}
+	for k, v := range ec.Variables {
+		ec.Variables[k] = v
+	}
+}
 
-func (epr *EvalExpr) Eval() bool {
+func (ec *EvalContext) String() string {
+	var sb strings.Builder
+
+	for k, v := range ec.Variables {
+		sb.WriteString(k)
+		sb.WriteString("=")
+		sb.WriteString(fmt.Sprintf("%v", v.Val()))
+		sb.WriteString("\n")
+	}
+
+	return sb.String()
+}
+
+func (epr *EvalEqExpr) Eval() bool {
 	if !epr.HasBoth() {
 		return epr.EvalHand()
 	}
 	return epr.Left.Eval() && epr.Right.Eval()
 }
 
-func (op *OpExpr) Eval() bool {
-	
+func NewOp(op int, l, r Value) *OpExpr {
+	return &OpExpr{Left: l, Right: r, Op: op}
+}
 
+func (op *OpExpr) Eval() bool {
+	cmp := op.Left.Compare(op.Right)
+
+	if op.Op == CmpLe {
+		return cmp == CmpEq || cmp == CmpLt || cmp == CmpLe
+	}
+
+	if op.Op == CmpGe {
+		return cmp == CmpEq || cmp == CmpGt || cmp == CmpGe
+	}
+
+	return op.Op == cmp
 }
 
 func NewNamedVar(n string, v Value) *NamedVar {
-	return  &NamedVar{Name:n, Value: v}
+	return &NamedVar{Name: n, Value: v}
 }
 
-func NewInteger(s string) Value { 
+func NewRefVar(n string) *NamedVar {
+	return &NamedVar{Name: n, IsRef: true}
+}
+
+func NewInteger(s string) Value {
 	n, _ := strconv.ParseInt(s, 10, 64)
 	return &IntVar{Int64: n}
 }
 
+func NewBool(s string) Value {
+	b, _ := strconv.ParseBool(s)
+	return &BoolVar{Bool: b}
+}
+
+func NewStr(s string) Value {
+	return &StrVar{String: s}
+}
 
 func (nb *NamedVar) Val() interface{} { return nb.Value.Val() }
 func (nb *NamedVar) Compare(v Value) int {
 	if v == nil {
-		return false
+		return CmpNotMatch
 	}
 	if nb.Value == nil {
-		return false
+		return CmpNotMatch
 	}
-	
+
 	if nv, ok := v.(*NamedVar); ok {
 		return nb.Value.Compare(nv.Value)
 	}
 	return nb.Value.Compare(v)
 }
 
+func (ns NamedVars) Map() map[string]Value {
+	ret := map[string]Value{}
+	for _, n := range ns {
+		ret[n.Name] = n.Value
+	}
+	return ret
+}
 
 func (b *BoolVar) Val() interface{} { return b.Bool }
 
-func (b *BoolVar) Compare(v Value) bool {
+func (b *BoolVar) Compare(v Value) int {
 	if nb, ok := v.(*BoolVar); ok {
 		if b.Bool == nb.Bool {
 			return CmpEq
 		}
 		if b.Bool == true {
-			return GmpGt
+			return CmpGt
+		}
+		// nb.Bool == true
+		return CmpLt
+	}
+	return CmpNotMatch
+}
+
+func (s *StrVar) Val() interface{} { return s.String }
+func (s *StrVar) Compare(v Value) int {
+	if ns, ok := v.(*StrVar); ok {
+		if s.String == ns.String {
+			return CmpEq
+		}
+		if s.String > ns.String {
+			return CmpGt
 		}
 		// nb.Bool == true
 		return CmpLt
@@ -180,7 +284,7 @@ func (b *BoolVar) Compare(v Value) bool {
 
 func (i *IntVar) Val() interface{} { return i.Int64 }
 
-func (i *IntVar) Compare(v Value) bool {
+func (i *IntVar) Compare(v Value) int {
 	if iv, ok := v.(*IntVar); ok {
 		if i.Int64 == iv.Int64 {
 			return CmpEq
@@ -195,16 +299,32 @@ func (i *IntVar) Compare(v Value) bool {
 
 func (n *NilVar) Val() interface{} { return nil }
 
-func (n *NilVar) Compare(v Value) bool {
-	if nv, ok := v.(*NilVar); ok {
+func (n *NilVar) Compare(v Value) int {
+	if _, ok := v.(*NilVar); ok {
 		return CmpEq
 	}
 	return CmpNotMatch
 }
 
+func NewFuncExpr(name string, args Args) Expr {
+	return &FuncExpr{
+		Name: name,
+		Args: args,
+	}
+}
 
+func (fe *FuncExpr) Eval() bool {
+	return true
+}
+
+func NewLexer() *Lexer {
+	lex := new(Lexer)
+	lex.EvalContext = NewEvalContext()
+	return lex
+}
 
 func (l *Lexer) Lex(lval *ExpSymType) int {
+	print("-------")
 	tk, text, err := l.ScanToken(l.Scan(), l.TokenText())
 
 	println("Lex;", tk, ", txt:", text)
@@ -230,31 +350,50 @@ func (l *Lexer) ScanToken(token rune, text string) (int, string, error) {
 		//case scanner.Ident:
 	}
 
-	if text == "true" {
+	switch text {
+	case "true":
 		return TRUE, text, nil
-	}
-	if text == "false" {
+	case "false":
 		return FALSE, text, nil
-	}
-
-	if text == "nil" {
+	case "nil":
 		return NIL, text, nil
+	case "=":
+		return '=', text, nil
+	case ";":
+		return ';', text, nil
+	case "\n":
+		return '\n', text, nil
 	}
-
-
-	
-	
 
 	println("uunknown.....[", text, "], str:", scanner.ScanStrings, ",ch", scanner.ScanChars, "Int:", scanner.ScanInts, ",Float:", scanner.ScanFloats)
-	
+
 	return int(token), text, errors.New("unknown syntax")
 }
-
 
 func (l *Lexer) Error(e string) {
 	panic(e)
 }
 
+func (l *Lexer) Eval() bool {
+	return false
+}
+
+func (l *Lexer) Append(e Expr) {
+	if e == nil {
+		return
+	}
+
+	if ec, ok := e.(*EvalContext); ok {
+		l.EvalContext.Merge(ec)
+		return
+	}
+
+	if l.Expr == nil {
+		l.Expr = e
+	} else {
+		l.Expr = NewHands(l.Expr, e)
+	}
+}
 
 /*
 

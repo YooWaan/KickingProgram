@@ -23,6 +23,11 @@ const TRUE = 57347
 const FALSE = 57348
 const INTEGER = 57349
 const NIL = 57350
+const EQ = 57351
+const EEQ = 57352
+const NEQ = 57353
+const AAND = 57354
+const OOR = 57355
 
 var ExpToknames = [...]string{
 	"$end",
@@ -33,9 +38,16 @@ var ExpToknames = [...]string{
 	"FALSE",
 	"INTEGER",
 	"NIL",
+	"EQ",
+	"EEQ",
+	"NEQ",
+	"AAND",
+	"OOR",
 	"','",
 	"'='",
+	"'\"'",
 	"'\\n'",
+	"';'",
 }
 
 var ExpStatenames = [...]string{}
@@ -44,7 +56,7 @@ const ExpEofCode = 1
 const ExpErrCode = 2
 const ExpInitialStackSize = 16
 
-//line parse/lang.y:88
+//line parse/lang.y:104
 
 //line yacctab:1
 var ExpExca = [...]int{
@@ -55,54 +67,59 @@ var ExpExca = [...]int{
 
 const ExpPrivate = 57344
 
-const ExpLast = 18
+const ExpLast = 24
 
 var ExpAct = [...]int{
-	5, 8, 14, 15, 16, 13, 7, 8, 9, 3,
-	5, 6, 12, 11, 4, 2, 10, 1,
+	17, 18, 19, 16, 10, 7, 10, 22, 11, 9,
+	3, 20, 8, 21, 5, 6, 15, 12, 14, 4,
+	13, 2, 1, 14,
 }
 
 var ExpPact = [...]int{
-	6, -1000, -10, -1000, -2, -1000, -4, -1000, -1000, -3,
-	-1000, -1000, -1000, -1000, -1000, -1000, -1000,
+	10, -1000, -13, -1000, -7, -1000, 10, -11, -11, -1000,
+	-1000, -5, -1000, -11, -1000, -1000, -1000, -1000, -1000, -1000,
+	9, -9, -1000,
 }
 
 var ExpPgo = [...]int{
-	0, 17, 15, 9, 14, 12, 11, 6,
+	0, 22, 21, 10, 19, 16, 15, 12, 9,
 }
 
 var ExpR1 = [...]int{
 	0, 1, 1, 2, 2, 3, 4, 5, 5, 5,
-	5, 6, 6, 7,
+	5, 5, 7, 7, 8, 6, 6, 6,
 }
 
 var ExpR2 = [...]int{
 	0, 0, 1, 1, 3, 3, 1, 1, 1, 1,
-	1, 1, 2, 1,
+	1, 3, 1, 2, 1, 2, 1, 1,
 }
 
 var ExpChk = [...]int{
-	-1000, -1, -2, -3, -4, 4, -6, -7, 11, 10,
-	-3, -7, -5, 8, 5, 6, 7,
+	-1000, -1, -2, -3, -4, 4, -6, 18, -7, -8,
+	17, 15, -3, -7, -8, -5, 8, 5, 6, 7,
+	16, 4, 16,
 }
 
 var ExpDef = [...]int{
-	1, -2, 2, 3, 0, 6, 0, 11, 13, 0,
-	4, 12, 5, 7, 8, 9, 10,
+	1, -2, 2, 3, 0, 6, 0, 17, 16, 12,
+	14, 0, 4, 15, 13, 5, 7, 8, 9, 10,
+	0, 0, 11,
 }
 
 var ExpTok1 = [...]int{
 	1, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	11, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	17, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 3, 9, 3, 3, 3, 3, 3,
-	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	3, 10,
+	3, 3, 3, 3, 16, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 14, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 18,
+	3, 15,
 }
 
 var ExpTok2 = [...]int{
-	2, 3, 4, 5, 6, 7, 8,
+	2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+	12, 13,
 }
 
 var ExpTok3 = [...]int{
@@ -448,64 +465,74 @@ Expdefault:
 
 	case 1:
 		ExpDollar = ExpS[Exppt-0 : Exppt+1]
-//line parse/lang.y:31
+//line parse/lang.y:32
 		{
 			Explex.(*Lexer).Expr = nil
 		}
 	case 2:
 		ExpDollar = ExpS[Exppt-1 : Exppt+1]
-//line parse/lang.y:35
+//line parse/lang.y:36
 		{
 			Explex.(*Lexer).EvalContext = ExpDollar[1].ctx
 		}
 	case 3:
 		ExpDollar = ExpS[Exppt-1 : Exppt+1]
-//line parse/lang.y:42
+//line parse/lang.y:45
 		{
-			ExpVAL.ctx = EvalContext{}
+			ExpVAL.ctx = Explex.(*Lexer).EvalContext
+			println("vars>", ExpVAL.ctx.String())
 			ExpVAL.ctx.PutNV(ExpDollar[1].nv)
 		}
 	case 4:
 		ExpDollar = ExpS[Exppt-3 : Exppt+1]
-//line parse/lang.y:47
+//line parse/lang.y:51
 		{
+			ExpVAL.ctx = Explex.(*Lexer).EvalContext
+			println("vars>", ExpVAL.ctx.String())
 			ExpVAL.ctx.PutNV(ExpDollar[3].nv)
 		}
 	case 5:
 		ExpDollar = ExpS[Exppt-3 : Exppt+1]
-//line parse/lang.y:53
+//line parse/lang.y:59
 		{
+			println("var>", ExpDollar[1].s)
 			ExpVAL.nv = NewNamedVar(ExpDollar[1].s, ExpDollar[3].v)
 		}
 	case 6:
 		ExpDollar = ExpS[Exppt-1 : Exppt+1]
-//line parse/lang.y:60
+//line parse/lang.y:67
 		{
 			ExpVAL.s = ExpDollar[1].s
 		}
 	case 7:
 		ExpDollar = ExpS[Exppt-1 : Exppt+1]
-//line parse/lang.y:66
+//line parse/lang.y:73
 		{
-			ExpVAL.v = &NilVar{}
+			ExpVAL.v = NilValue
 		}
 	case 8:
 		ExpDollar = ExpS[Exppt-1 : Exppt+1]
-//line parse/lang.y:70
+//line parse/lang.y:77
 		{
 			ExpVAL.v = &BoolVar{Bool: true}
 		}
 	case 9:
 		ExpDollar = ExpS[Exppt-1 : Exppt+1]
-//line parse/lang.y:74
+//line parse/lang.y:81
 		{
 			ExpVAL.v = &BoolVar{Bool: false}
 		}
 	case 10:
 		ExpDollar = ExpS[Exppt-1 : Exppt+1]
-//line parse/lang.y:78
+//line parse/lang.y:85
 		{
 			ExpVAL.v = NewInteger(ExpDollar[1].s)
+		}
+	case 11:
+		ExpDollar = ExpS[Exppt-3 : Exppt+1]
+//line parse/lang.y:89
+		{
+			ExpVAL.v = NewStr(ExpDollar[2].s)
 		}
 	}
 	goto Expstack /* stack new state and value */
