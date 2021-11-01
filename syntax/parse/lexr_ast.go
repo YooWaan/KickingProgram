@@ -15,9 +15,9 @@ const (
 	VarTypeStr
 	VarTypeBool
 
-	OpUnknown = 0
-	OpAnd     = 1
-	OpOr      = 2
+	OpUnknown = 100
+	OpAnd     = 101
+	OpOr      = 102
 
 	CmpEq       = 0
 	CmpLt       = 1
@@ -46,6 +46,7 @@ type (
 	}
 
 	Value interface {
+		Expr
 		Val() interface{}
 		Compare(Value) int
 	}
@@ -117,15 +118,15 @@ var (
 	NilValue = &NilVar{}
 )
 
-func NewHands(l, r Expr) *Hands {
-	return &Hands{Left: l, Right: r}
+func NewHands(op int, l, r Expr) *Hands {
+	return &Hands{Left: l, Right: r, Op: op}
 }
 
 func (h Hands) HasBoth() bool {
 	return h.Left != nil && h.Right != nil
 }
 
-func (h Hands) EvalHand() bool {
+func (h Hands) Eval() bool {
 	if h.Left == nil && h.Right == nil {
 		return false
 	}
@@ -138,7 +139,7 @@ func (h Hands) EvalHand() bool {
 	if h.Op == OpAnd {
 		return h.Right.Eval() == h.Left.Eval()
 	}
-	if h.Op == OpAnd {
+	if h.Op == OpOr {
 		return h.Right.Eval() || h.Left.Eval()
 	}
 	return false
@@ -228,6 +229,7 @@ func NewStr(s string) Value {
 	return &StrVar{String: s}
 }
 
+func (nb *NamedVar) Eval() bool       { return nb.Value.Eval() }
 func (nb *NamedVar) Val() interface{} { return nb.Value.Val() }
 func (nb *NamedVar) Compare(v Value) int {
 	if v == nil {
@@ -251,6 +253,7 @@ func (ns NamedVars) Map() map[string]Value {
 	return ret
 }
 
+func (b *BoolVar) Expr() bool       { return b.Bool }
 func (b *BoolVar) Val() interface{} { return b.Bool }
 
 func (b *BoolVar) Compare(v Value) int {
@@ -267,6 +270,7 @@ func (b *BoolVar) Compare(v Value) int {
 	return CmpNotMatch
 }
 
+func (s *StrVar) Eval() bool       { return len(s.String) > 0 }
 func (s *StrVar) Val() interface{} { return s.String }
 func (s *StrVar) Compare(v Value) int {
 	if ns, ok := v.(*StrVar); ok {
@@ -282,6 +286,7 @@ func (s *StrVar) Compare(v Value) int {
 	return CmpNotMatch
 }
 
+func (i *IntVar) Eval() bool       { return true }
 func (i *IntVar) Val() interface{} { return i.Int64 }
 
 func (i *IntVar) Compare(v Value) int {
@@ -297,6 +302,7 @@ func (i *IntVar) Compare(v Value) int {
 	return CmpNotMatch
 }
 
+func (n *NilVar) Eval() bool       { return false }
 func (n *NilVar) Val() interface{} { return nil }
 
 func (n *NilVar) Compare(v Value) int {
@@ -314,7 +320,15 @@ func NewFuncExpr(name string, args Args) Expr {
 }
 
 func (fe *FuncExpr) Eval() bool {
-	return true
+	return fe.Val()
+}
+
+func (fe *FuncExpr) Val() interface{} {
+	return false
+}
+
+func (fe *FuncExpr) Compare(v Value) int {
+	return CmpNotMatch
 }
 
 func NewLexer() *Lexer {

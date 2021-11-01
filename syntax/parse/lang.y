@@ -68,18 +68,16 @@ expr :
    {
      $$ = $1
    }
-   | '(' exprs ')'
+   | '(' expr ')'
    {
      $$ = NewHands($1, $2)
    }
-
-func_expr:
-   func_name '(' args ')'
+   | condition_expr
    {
-      $$ = NewFuncExpr($1, $3)
+     $$ = $1
    }
 
-condition_expr:
+condition_expr
    op_comp
    {
       $$ = $1
@@ -89,23 +87,46 @@ condition_expr:
       $$ = $1
    }
 
+op_stmt: var_value
+        {
+           $$ = $1
+        }
+        | func_expr
+        {
+           $$ = $1
+        }
+        | var_name
+        {
+            $$ = NewRefVar($1)
+        }
+
+
+
 op_comp:
-   func_expr EEQ func_expr
+   op_stmt EEQ op_stmt
    {
       $$ = NewOp(CmpEq, $1, $3)
    }
-   | func_expr NEQ func_expr
+   | op_stmt NEQ op_stmt
    {
       $$ = NewOp(CmpNotEq, $1, $3)
    }
 
 op_binary:
-    expr AAND expr
+    op_stmt AAND op_stmt
     {
+      $$ = NewHand(OpAnd, $1, $2)
     }
-    | expr OOR expr
+    | op_stmt OOR op_stmt
     {
+      $$ = NewHand(OpOr, $1, $2)
     }
+
+func_expr:
+   func_name '(' args ')'
+   {
+      $$ = NewFuncExpr($1, $3)
+   }
 
 
 args:
