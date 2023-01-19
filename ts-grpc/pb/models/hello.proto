@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option go_package = "github.com/hello/grpc/pkg/models";
+
+package hello;
+
+message Hey {
+  string text = 1;
+}

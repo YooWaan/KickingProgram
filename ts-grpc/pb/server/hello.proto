@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package hellosrv;
+
+option go_package = "github.com/hello/grpc/pkg/server";
+
+
+import "pb/models/hello.proto";
+
+service HelloService {
+  rpc Greet(hello.Hey) returns (Say) {}
+}
+
+message Say {
+  string message = 1;
+}
