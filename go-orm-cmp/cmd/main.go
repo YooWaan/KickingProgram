@@ -1,36 +1,43 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 
+	"comp.exp/db"
 	"comp.exp/db/models"
 )
 
 func main() {
 
 	mg := flag.Bool("m", false, "migration or no")
+	ormType := flag.String("orm", "gorm", "orm type")
 
 	flag.Parse()
 
-	db, err := models.Conn()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	if *mg {
-		if err := db.AutoMigrate(&models.Geo{}); err != nil {
-			log.Fatal(err)
-		}
-	} else {
-
-		rs, err := models.Select(db)
+		db, err := db.GormConn()
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		for i, r := range rs {
-			log.Printf("[%d] %v (%v)", i, r, r.MP.Coords())
+		if err := db.AutoMigrate(&models.Geo{}); err != nil {
+			log.Fatal(err)
 		}
+		return
+	}
+
+	ctx := context.Background()
+	var fn db.Fetch
+
+	if *ormType == "gorm" {
+		fn = db.GormSelect
+	} else if *ormType == "bun" {
+		fn = db.BunSelect
+	}
+
+	if err := fn(ctx); err != nil {
+		log.Fatal(err)
 	}
 }
