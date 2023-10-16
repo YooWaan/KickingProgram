@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  db:
+    container_name: 'gis-db'
+    image: postgis/postgis:16-master
+    environment:
+      POSTGRES_DB: gdb
+      POSTGRES_USER: guser
+      POSTGRES_PASSWORD: gpass
+    volumes:
+      - ./var/pg/data:/var/lib/postgresql/data
+    ports:
+      - 6444:5432
