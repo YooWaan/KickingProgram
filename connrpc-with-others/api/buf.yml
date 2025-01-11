@@ -1,0 +1,13 @@
+version: v2
+
+modules:
+  - path: api/proto
+
+lint:
+  use:
+    - STANDARD
+    - TIMESTAMP_SUFFIX
+
+breaking:
+  use:
+    - FILE

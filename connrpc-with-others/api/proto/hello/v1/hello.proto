@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package hello.v1;
+
+option go_package = "example.com/connrpcothr/rpc/hello/v1";
+
+message Request {
+  string text = 1;
+}
+
+message Response {
+  string msg = 1;
+}
+
+service HeloService {
+  rpc Greet(Request) returns (Response) {}
+}
