@@ -1,0 +1,16 @@
+[package]
+name = "gemini-chat"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+graph-flow = { version = "0.5", features = ["rig"] }
+rig-core = "0.37"
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+anyhow = "1"
+dotenvy = "0.15"
+
+[[bin]]
+name = "gchat"
+path = "src/gem.rs"
